@@ -8,6 +8,9 @@ const enquirySchema = new mongoose.Schema({
   location: { type: String, required: true, trim: true },
   requirements: { type: String, required: true, trim: true },
   status: { type: String, enum: ['new', 'contacted', 'closed'], default: 'new' }
-}, { timestamps: true });
+}, {
+  timestamps: true,
+  bufferCommands: false
+});
 
 export default mongoose.model('Enquiry', enquirySchema);

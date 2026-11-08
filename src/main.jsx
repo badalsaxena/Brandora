@@ -7,9 +7,11 @@ import {
   Video, X, Zap
 } from 'lucide-react';
 import './styles.css';
-import brandoraLogo from './brandora-logo.png';
+import brandoraLogo from '/WhatsApp Image 2026-11-07 at 3.10.24 PM.jpeg';
 
 const phone = '917983316330';
+const alternatePhone = '917409113000';
+const instagramUrl = 'https://www.instagram.com/brandora.agencyy/';
 const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent('Hi Brandora, I would like to discuss a project.')}`;
 
 const services = [
@@ -38,10 +40,18 @@ const portfolio = [
 
 const showcaseVideos = [
   { title: 'CAR DELIHEVERY — SHOOT', category: 'Brand film', src: '/videos/Fronxx%20MP4.mp4' },
-  { title: 'GURUNANAK JWELLERS — Campaign cut', category: 'Campaign', src: '/videos/IMG_1044.MP4' },
+ {
+  title: 'GURUNANAK JWELLERS — Campaign cut',
+  category: 'Campaign',
+  src: 'https://res.cloudinary.com/ktbjlexj/video/upload/v1794042789/IMG_1044.mp4'
+},
   { title: 'CAR EDIT — Social story', category: 'Social content', src: '/videos/MH%20edit.mp4' },
   { title: 'Sigma Bazar — Product story', category: 'Product film', src: '/videos/Sigma%20bazar%201.mp4' },
-  { title: 'YASH JWELLERS', category: 'Product film', src: '/videos/YASH%20JWELLERS.MP4' },
+  {
+  title: 'YASH JWELLERS',
+  category: 'Product film',
+  src: 'https://res.cloudinary.com/ktbjlexj/video/upload/v1794041911/YASH_JWELLERS.mp4'
+},
 
 ];
 
@@ -60,6 +70,8 @@ function App() {
   const [selectedPackage, setSelectedPackage] = useState('');
   const [selectedWork, setSelectedWork] = useState(null);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const [announcementVisible, setAnnouncementVisible] = useState(true);
 
   const scrollTo = (id) => {
@@ -67,16 +79,32 @@ function App() {
     setMenuOpen(false);
   };
 
-  const submitEnquiry = (event) => {
+  const submitEnquiry = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const submission = Object.fromEntries(formData.entries());
-    const existing = JSON.parse(localStorage.getItem('brandora-enquiries') || '[]');
-    localStorage.setItem('brandora-enquiries', JSON.stringify([...existing, { ...submission, createdAt: new Date().toISOString() }]));
-    fetch('/api/enquiries', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(submission) })
-      .catch(() => console.warn('Brandora API unavailable; enquiry retained in this browser.'));
-    setSubmitted(true);
-    event.currentTarget.reset();
+    setSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const response = await fetch('/api/enquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(submission)
+      });
+      const contentType = response.headers.get('content-type') || '';
+      const result = contentType.includes('application/json') ? await response.json() : {};
+      if (!response.ok) {
+        throw new Error(result.message || `The enquiry service is unavailable (${response.status}). Start the backend and try again.`);
+      }
+      setSubmitted(true);
+      event.currentTarget.reset();
+      setSelectedPackage('');
+    } catch (error) {
+      setSubmitError(error.message || 'Unable to send your enquiry. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const categories = ['All', ...new Set(portfolio.map((item) => item.category))];
@@ -105,7 +133,7 @@ function App() {
             <button className="hero-festive-callout" onClick={() => scrollTo('packages')}><span>🪔 Diwali campaign now live</span><strong>Turn festive attention into sales <ArrowUpRight size={15} /></strong></button>
             <div className="hero-actions"><button className="button gold" onClick={() => scrollTo('services')}>Explore our services <ArrowUpRight size={17} /></button><button className="text-button" onClick={() => scrollTo('work')}>View our work <span>↘</span></button></div>
           </div>
-          <div className="hero-foot"><span>Scroll to explore</span><span className="scroll-line" /><span>Est. 2024 — India</span></div>
+          <div className="hero-foot"><span>Scroll to explore</span><span className="scroll-line" /></div>
         </section>
 
         <section className="intro section" id="about">
@@ -137,12 +165,12 @@ function App() {
         <section className="quote-section"><Quote size={36} /><blockquote>“The best marketing doesn't feel like marketing.”</blockquote><span className="quote-brand"><img src={brandoraLogo} alt="Brandora" /></span></section>
 
         <section className="contact section" id="contact">
-          <div className="contact-copy"><div className="section-kicker light">07 — Let's create</div><h2>Your next<br /><em>chapter starts here.</em></h2><p>Tell us a little about your business and what you're building. We’ll get back to you within one working day.</p><div className="contact-links"><a href={`tel:+${phone}`}>+91 79833 16330 <ArrowUpRight size={15} /></a><a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp us <MessageCircle size={15} /></a></div></div>
-          <form className="enquiry-form" onSubmit={submitEnquiry}>{submitted ? <div className="success-message"><div className="success-icon"><Check /></div><h3>Enquiry received.</h3><p>Thanks for reaching out. We’ll confirm your Diwali campaign benefits when our team gets in touch.</p><button type="button" className="text-button light-text" onClick={() => setSubmitted(false)}>Send another enquiry</button></div> : <><div className="festive-form-note">🪔 Diwali campaign benefits are automatically included with eligible Growth and Premium enquiries.</div><div className="form-row"><label>Full name<input name="fullName" required placeholder="Your name" /></label><label>Business name<input name="businessName" required placeholder="Your business" /></label></div><div className="form-row"><label>Phone number<input name="phone" required type="tel" placeholder="+91 00000 00000" /></label><label>Interested package<select name="package" value={selectedPackage} onChange={(e) => setSelectedPackage(e.target.value)} required><option value="">Select a package</option>{packages.map((pkg) => <option key={pkg.name}>{pkg.name} — {pkg.price}</option>)}</select></label></div>{selectedPackage && <p className="selected-package">Selected: <strong>{selectedPackage}</strong> <span>Festive benefits will be discussed on confirmation.</span></p>}<label>Business location<input name="location" required placeholder="City, State" /></label><label>Project requirements<textarea name="requirements" required rows="4" placeholder="Tell us what you have in mind..." /></label><button className="button gold full" type="submit">Submit enquiry <ArrowUpRight size={17} /></button></>}</form>
+          <div className="contact-copy"><div className="section-kicker light">07 — Let's create</div><h2>Your next<br /><em>chapter starts here.</em></h2><p>Tell us a little about your business and what you're building. We’ll get back to you within one working day.</p><div className="contact-links"><a href={`tel:+${phone}`}>+91 79833 16330 <ArrowUpRight size={15} /></a><a href={`tel:+${alternatePhone}`}>+91 74091 13000 <ArrowUpRight size={15} /></a><a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp us <MessageCircle size={15} /></a></div></div>
+          <form className="enquiry-form" onSubmit={submitEnquiry}>{submitted ? <div className="success-message"><div className="success-icon"><Check /></div><h3>Enquiry received.</h3><p>Thanks for reaching out. We’ll confirm your Diwali campaign benefits when our team gets in touch.</p><button type="button" className="text-button light-text" onClick={() => setSubmitted(false)}>Send another enquiry</button></div> : <><div className="festive-form-note">🪔 Diwali campaign benefits are automatically included with eligible Growth and Premium enquiries.</div><div className="form-row"><label>Full name<input name="fullName" required placeholder="Your name" /></label><label>Business name<input name="businessName" required placeholder="Your business" /></label></div><div className="form-row"><label>Phone number<input name="phone" required type="tel" placeholder="+91 00000 00000" /></label><label>Interested package<select name="package" value={selectedPackage} onChange={(e) => setSelectedPackage(e.target.value)} required><option value="">Select a package</option>{packages.map((pkg) => <option key={pkg.name}>{pkg.name} — {pkg.price}</option>)}</select></label></div>{selectedPackage && <p className="selected-package">Selected: <strong>{selectedPackage}</strong> <span>Festive benefits will be discussed on confirmation.</span></p>}<label>Business location<input name="location" required placeholder="City, State" /></label><label>Project requirements<textarea name="requirements" required rows="4" placeholder="Tell us what you have in mind..." /></label>{submitError && <p className="form-error" role="alert">{submitError}</p>}<button className="button gold full" type="submit" disabled={submitting}>{submitting ? 'Sending enquiry…' : 'Submit enquiry'} {!submitting && <ArrowUpRight size={17} />}</button></>}</form>
         </section>
       </main>
 
-      <footer><button className="logo" onClick={() => scrollTo('home')} aria-label="Brandora home"><img src={brandoraLogo} alt="Brandora" /></button><p>Stories that move people.<br />Content that moves business.</p><div><a href={whatsappUrl} target="_blank" rel="noreferrer">Instagram</a><a href={`tel:+${phone}`}>Call us</a></div><small>© 2024 Brandora Studio. All rights reserved.</small></footer>
+      <footer><button className="logo" onClick={() => scrollTo('home')} aria-label="Brandora home"><img src={brandoraLogo} alt="Brandora" /></button><p>Stories that move people.<br />Content that moves business.</p><div><a href={instagramUrl} target="_blank" rel="noreferrer">Instagram</a><a href={`tel:+${phone}`}>Call us</a></div><small>© 2024 Brandora Studio. All rights reserved.</small></footer>
 
       <AnimatePresence>{selectedWork && <motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedWork(null)}><motion.div className="work-modal" initial={{ scale: .94 }} animate={{ scale: 1 }} exit={{ scale: .94 }} onClick={(e) => e.stopPropagation()}><button className="modal-close" onClick={() => setSelectedWork(null)}><X /></button><img src={selectedWork.image} alt="" /><div><small>{selectedWork.category} / Sample direction</small><h3>{selectedWork.title}</h3><p>Sample portfolio direction — replace with your next campaign.</p></div></motion.div></motion.div>}</AnimatePresence>
     </div>

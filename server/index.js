@@ -10,7 +10,11 @@ const app = express();
 app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }));
 app.use(express.json({ limit: '1mb' }));
 
-app.get('/api/health', (_req, res) => res.json({ status: 'ok', service: 'brandora-api' }));
+app.get('/api/health', (_req, res) => res.json({
+  status: 'ok',
+  service: 'brandora-api',
+  database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+}));
 app.post('/api/admin/login', async (req, res) => {
   const { email, password } = req.body;
   const valid = email === process.env.ADMIN_EMAIL && await bcrypt.compare(password || '', await bcrypt.hash(process.env.ADMIN_PASSWORD || '', 10));
@@ -21,8 +25,15 @@ app.use('/api/enquiries', enquiries);
 app.use((error, _req, res, _next) => res.status(error.status || 500).json({ message: error.message || 'Internal server error.' }));
 
 const port = process.env.PORT || 5000;
+app.listen(port, () => console.log(`Brandora API listening on ${port}`));
+
 if (process.env.MONGODB_URI) {
-  mongoose.connect(process.env.MONGODB_URI).then(() => app.listen(port, () => console.log(`Brandora API listening on ${port}`))).catch((error) => { console.error('MongoDB connection failed:', error.message); process.exit(1); });
+  mongoose.connect(process.env.MONGODB_URI, {
+    serverSelectionTimeoutMS: 5000,
+    connectTimeoutMS: 5000
+  })
+    .then(() => console.log('MongoDB connected'))
+    .catch((error) => console.error('MongoDB connection failed:', error.message));
 } else {
-  app.listen(port, () => console.log(`Brandora API listening on ${port} without MongoDB`));
+  console.warn('MONGODB_URI is not configured; enquiry storage is disabled.');
 }

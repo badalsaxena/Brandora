@@ -32,6 +32,8 @@ body{background:#f1f4ef}
 .hero h1 em,h2 em{color:var(--gold)}
 .button.gold,.popular-badge{background:var(--gold)}
 .button.gold:hover{background:#d1ff80}
+.button:disabled{cursor:wait;opacity:.65}
+.form-error{color:#ff9b9b;font-size:13px;margin:12px 0}
 .button.outline{border-color:var(--gold);color:var(--gold)}
 .dark-section,.showcase{background:#050605}
 .service-grid{background:#253020}
@@ -54,4 +56,54 @@ body{background:#f1f4ef}
   .video-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
   .video-meta{display:block}
   .video-meta h3{margin-top:7px}
+}
+
+/* Layout audit fixes */
+.hero-content{z-index:1}
+.hero-actions{gap:24px;flex-wrap:wrap}
+.hero-actions .button{min-height:50px;padding-inline:24px}
+.hero-actions .text-button{min-height:50px;padding:15px 4px}
+.hero-foot{bottom:28px}
+.hero-foot span:last-child{margin-left:0}
+.section-heading{align-items:flex-start}
+.section-heading h2{margin-top:18px}
+.section-heading p{margin-top:24px}
+.package-grid{align-items:stretch}
+.package-card{display:flex;flex-direction:column;min-height:100%}
+.package-top{min-height:22px}
+.package-card h3{margin-top:24px}
+.festive-tag{align-self:flex-start;margin:0 0 16px}
+.package-card ul{flex:1}
+.package-card .button.full{margin-top:24px}
+.process .section-kicker{color:var(--gold)}
+.contact .section-kicker{color:var(--gold)}
+footer{row-gap:24px}
+footer .logo{justify-self:start}
+footer div{gap:32px}
+
+@media (max-width:850px){
+  .hero{height:auto;min-height:700px}
+  .hero-content{max-width:680px}
+  .section-heading h2{margin-top:16px}
+  .package-card{min-height:0}
+  .package-card ul{flex:initial}
+}
+
+@media (max-width:560px){
+  .announcement-bar{padding-left:16px}
+  .site-header{padding-inline:6%}
+  .hero{min-height:740px;padding:145px 8% 95px}
+  .hero h1{font-size:clamp(43px,13vw,58px);line-height:1.02}
+  .hero-actions{align-items:stretch;gap:12px;margin-top:28px}
+  .hero-actions .button,.hero-actions .text-button{width:100%;justify-content:center}
+  .hero-foot{bottom:24px;left:8%;right:8%}
+  .section-heading{margin-bottom:38px}
+  .section-heading h2{font-size:clamp(40px,12vw,48px)}
+  .package-card{padding:24px 20px}
+  .package-card h3{font-size:34px}
+  .price{font-size:44px}
+  .process-row{grid-template-columns:36px 1fr 18px;gap:12px;padding:22px 0}
+  .process-row h3{font-size:18px}
+  footer{gap:20px;padding:40px 8%}
+  footer div{gap:24px}
 }
