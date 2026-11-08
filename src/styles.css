@@ -77,6 +77,8 @@ body{background:#f1f4ef}
 .package-card .button.full{margin-top:24px}
 .process .section-kicker{color:var(--gold)}
 .contact .section-kicker{color:var(--gold)}
+.packages .section-kicker{color:#5d6b55}
+.intro .section-kicker{color:#5d6b55}
 footer{row-gap:24px}
 footer .logo{justify-self:start}
 footer div{gap:32px}
